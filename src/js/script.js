@@ -41,22 +41,14 @@ function gdprCookieNotice(config) {
 
   // Delete cookies if needed
   function deleteCookies(savedCookies) {
-    var notAllEnabled = false;
     for (var i = 0; i < categories.length; i++) {
       if(config[categories[i]] && !savedCookies[categories[i]]) {
         for (var ii = 0; ii < config[categories[i]].length; ii++) {
           gdprCookies.remove(config[categories[i]][ii]);
-          notAllEnabled = true;
         }
       }
     }
-
-    // Show the notice if not all categories are enabled
-    if(notAllEnabled) {
-      showNotice();
-    } else {
-      hideNotice();
-    }
+    hideNotice();
   }
 
   // Hide cookie notice bar
@@ -77,7 +69,14 @@ function gdprCookieNotice(config) {
     // If request was coming from the modal, check for the settings
     if(save) {
       for (var i = 0; i < categories.length; i++) {
-        value[categories[i]] = document.getElementById(pluginPrefix+'-cookie_'+categories[i]).checked;
+        var category = document.getElementById(
+          pluginPrefix+'-cookie_'+categories[i]
+        );
+
+        // over write only active categories
+        if (category !== null) {
+          value[categories[i]] = category.checked;
+        }
       }
     }
     gdprCookies.set(namespace, value, { expires: config.expiration, domain: config.domain });
@@ -251,6 +250,7 @@ function gdprCookieNotice(config) {
         saveButton.classList.remove('saved');
       }, 1000);
       acceptCookies(true);
+      hideModal();
     });
 
   }
